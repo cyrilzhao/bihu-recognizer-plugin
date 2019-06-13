@@ -1,8 +1,8 @@
 {
   "targets": [
     {
-      "target_name": "test",
-      "sources": [ "test.cc" ]
+      "target_name": "frame_addon",
+      "sources": [ "addon.cc" ]
     }
   ]
 }
