@@ -84,9 +84,14 @@ namespace helloWorld {
 	  return false;
   }
 
-  std::vector<std::string> FindFromShell(std::vector<std::string> whitelist)
-  {
+  struct UrlFrame {
+	  std::string url;
 	  std::vector<std::string> frames;
+  };
+
+  std::vector<UrlFrame> FindFromShell(std::vector<std::string> whitelist)
+  {
+	  std::vector<UrlFrame> frames;
 
 	  CComPtr<IShellWindows> spShellWin;
 	  HRESULT hr = spShellWin.CoCreateInstance(CLSID_ShellWindows);
@@ -118,9 +123,14 @@ namespace helloWorld {
 
 		  CComBSTR url;
 		  spDoc->get_URL(&url);
-		  if (inWhitelist(whitelist, ConvertBSTRToMBS(url))) {
+		  std::string urlStr = ConvertBSTRToMBS(url);
+		  if (inWhitelist(whitelist, urlStr)) {
 			  std::vector<std::string> subFrames = getFrames(spDoc);
-			  frames.insert(frames.end(), subFrames.begin(), subFrames.end());
+			  UrlFrame urlFrame = {
+				  urlStr,
+				  subFrames
+			  };
+			  frames.push_back(urlFrame);
 		  }
 	  }
 	  return frames;
@@ -161,12 +171,21 @@ namespace helloWorld {
 		  urls.push_back(std::string(*value));
 	  }
 
-	  std::vector<std::string> frames = FindFromShell(urls);
+	  std::vector<UrlFrame> urlFrames = FindFromShell(urls);
 
 	  Local<Array> result = Array::New(isolate);
-	  for (int i = 0; i < frames.size(); i++) {
-		  std::string frame = GBKToUTF8(frames[i]);
-		  result->Set(i, String::NewFromUtf8(isolate, frame.c_str()));
+	  for (int i = 0; i < urlFrames.size(); i++) {
+		  Local<Object> ob = Object::New(isolate);
+		  ob->Set(String::NewFromUtf8(isolate, "url"), String::NewFromUtf8(isolate, urlFrames[i].url.c_str()));
+
+		  Local<Array> frames = Array::New(isolate);
+		  for (int j = 0; j < urlFrames[i].frames.size(); j++) {
+			  std::string f = GBKToUTF8(urlFrames[i].frames[j]);
+			  frames->Set(j, String::NewFromUtf8(isolate, f.c_str()));
+		  }
+		  ob->Set(String::NewFromUtf8(isolate, "frames"), frames);
+
+		  result->Set(i, ob);
 		 // MessageBox(NULL, frames[i].c_str(), "html", MB_OK);
 	  }
 
