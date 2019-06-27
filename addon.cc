@@ -12,10 +12,10 @@ namespace helloWorld {
 	  int len = ::WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
 
 	  std::string dblstr(len, '\0');
-	  len = ::WideCharToMultiByte(CP_ACP, 0 /* no flags */,
-		  pstr, wslen /* not necessary NULL-terminated */,
+	  len = ::WideCharToMultiByte(CP_ACP, 0,
+		  pstr, wslen,
 		  &dblstr[0], len,
-		  NULL, NULL /* no default char */);
+		  NULL, NULL);
 
 	  return dblstr;
   }
@@ -26,9 +26,61 @@ namespace helloWorld {
 	  return ConvertWCSToMBS((wchar_t*)bstr, wslen);
   }
 
-  std::vector<std::string> getFrames(CComPtr<IHTMLDocument2> pDoc) {
+  // Converts a IHTMLWindow2 object to a IWebBrowser2. Returns NULL in case of failure.
+  CComQIPtr<IWebBrowser2> HtmlWindowToHtmlWebBrowser(CComQIPtr<IHTMLWindow2> spWindow)
+  {
+	  ATLASSERT(spWindow != NULL);
+
+	  CComQIPtr<IServiceProvider>  spServiceProvider = (CComQIPtr<IServiceProvider>)spWindow;
+	  if (spServiceProvider == NULL)
+	  {
+		  return CComQIPtr<IWebBrowser2>();
+	  }
+
+	  CComQIPtr<IWebBrowser2> spWebBrws;
+	  HRESULT hRes = spServiceProvider->QueryService(IID_IWebBrowserApp, IID_IWebBrowser2, (void**)& spWebBrws);
+	  if (hRes != S_OK)
+	  {
+		  return CComQIPtr<IWebBrowser2>();
+	  }
+
+	  return spWebBrws;
+  }
+
+  // Converts a IHTMLWindow2 object to a IHTMLDocument2. Returns NULL in case of failure.
+  // It takes into account accessing the DOM across frames loaded from different domains.
+  CComQIPtr<IHTMLDocument2> HtmlWindowToHtmlDocument(CComQIPtr<IHTMLWindow2> spWindow)
+  {
+	  ATLASSERT(spWindow != NULL);
+
+	  CComQIPtr<IHTMLDocument2> spDocument;
+	  HRESULT hRes = spWindow->get_document(&spDocument);
+
+	  if ((S_OK == hRes) && (spDocument != NULL))
+	  {
+		  // The html document was properly retrieved.
+		  return spDocument;
+	  }
+
+	  // hRes could be E_ACCESSDENIED that means a security restriction that
+	  // prevents scripting across frames that loads documents from different internet domains.
+	  CComQIPtr<IWebBrowser2>  spBrws = HtmlWindowToHtmlWebBrowser(spWindow);
+	  if (spBrws == NULL)
+	  {
+		  return CComQIPtr<IHTMLDocument2>();
+	  }
+
+	  // Get the document object from the IWebBrowser2 object.
+	  CComQIPtr<IDispatch> spDisp;
+	  hRes = spBrws->get_Document(&spDisp);
+	  spDocument = spDisp;
+
+	  return spDocument;
+  }
+
+  std::vector<std::string> GetFrames(CComQIPtr<IHTMLDocument2> pDoc) {
 	  std::vector<std::string> frames;
-	  CComPtr<IHTMLFramesCollection2> pFrames;
+	  CComQIPtr<IHTMLFramesCollection2> pFrames;
 	  pDoc->get_frames(&pFrames);
 	  if (NULL == pFrames) {
 		  return frames;
@@ -41,29 +93,31 @@ namespace helloWorld {
 		  varIndex.llVal = i;
 		  pFrames->item(&varIndex, &varResult);
 
-		  CComPtr<IHTMLWindow2> frameWindow;
-		  varResult.pdispVal->QueryInterface(IID_IHTMLWindow2, (void**)& frameWindow);
-		  CComPtr<IHTMLDocument2> pDoc;
-		  frameWindow->get_document(&pDoc);
-		  CComBSTR bstrTitle;
-		  pDoc->get_title(&bstrTitle);
+		  CComQIPtr<IHTMLWindow2> frameWindow;
+		  HRESULT hr;
+		  hr = varResult.pdispVal->QueryInterface(IID_IHTMLWindow2, (void**)& frameWindow);
+		  if (FAILED(hr)) continue;
 
-		  CComPtr<IHTMLElement> pBody;
-		  pDoc->get_body(&pBody);
+		  CComQIPtr<IHTMLDocument2> pDoc = HtmlWindowToHtmlDocument(frameWindow);
+
+		  CComQIPtr<IHTMLElement> pBody;
+		  hr = pDoc->get_body(&pBody);
+		  if (FAILED(hr)) continue;
 		  CComBSTR bstrBody;
-		  pBody->get_outerHTML(&bstrBody);
+		  hr = pBody->get_outerHTML(&bstrBody);
+		  if (FAILED(hr)) continue;
 		  std::string body = ConvertBSTRToMBS(bstrBody);
-		  if (body.size() > 100) {
+		  if (body.size() > 1) {
 			  frames.push_back(body);
 		  }
 
-		  std::vector<std::string> subFrames = getFrames(pDoc);
+		  std::vector<std::string> subFrames = GetFrames(pDoc);
 		  frames.insert(frames.end(), subFrames.begin(), subFrames.end());
 	  }
 	  return frames;
   }
 
-  bool startWith(std::string left, std::string right) {
+  bool StartsWith(std::string left, std::string right) {
 	  if (left.size() < right.size()) {
 		  return false;
 	  }
@@ -75,9 +129,12 @@ namespace helloWorld {
 	  return true;
   }
 
-  bool inWhitelist(std::vector<std::string> whitelist, std::string url) {
+  bool InWhitelist(std::vector<std::string> whitelist, std::string url) {
+	  if (whitelist.size() == 0) {
+		  return true;
+	  }
 	  for (int i = 0; i < whitelist.size(); i++) {
-		  if (startWith(url, whitelist[i])) {
+		  if (StartsWith(url, whitelist[i])) {
 			  return true;
 		  }
 	  }
@@ -87,13 +144,14 @@ namespace helloWorld {
   struct UrlFrame {
 	  std::string url;
 	  std::vector<std::string> frames;
+	  long hresult;
   };
 
   std::vector<UrlFrame> FindFromShell(std::vector<std::string> whitelist)
   {
 	  std::vector<UrlFrame> frames;
 
-	  CComPtr<IShellWindows> spShellWin;
+	  CComQIPtr<IShellWindows> spShellWin;
 	  HRESULT hr = spShellWin.CoCreateInstance(CLSID_ShellWindows);
 	  if (FAILED(hr))    return frames;
 
@@ -102,30 +160,28 @@ namespace helloWorld {
 
 	  for (long i = 0; i < nCount; i++)
 	  {
-
-		  CComPtr< IDispatch > spDisp;
+		  UrlFrame urlFrame;
+		  CComQIPtr< IDispatch > spDisp;
 		  hr = spShellWin->Item(CComVariant(i), &spDisp);
-		  if (FAILED(hr))   continue;
+		  if (FAILED(hr)) continue;
 
 		  CComQIPtr< IWebBrowser2 > spBrowser = (CComQIPtr< IWebBrowser2 >)spDisp;
-		  if (!spBrowser)     continue;
+		  if (!spBrowser) continue;
 
 		  spDisp.Release();
 		  hr = spBrowser->get_Document(&spDisp);
-		  if (FAILED(hr))  continue;
+		  if (FAILED(hr)) continue;
 
 		  CComQIPtr< IHTMLDocument2 > spDoc = (CComQIPtr< IHTMLDocument2 >)spDisp;
-		  if (!spDoc)         continue;
-
-		  // 程序运行到此，已经找到了 IHTMLDocument2 的接口指针
-		  CComBSTR bstrTitle;
-		  spDoc->get_URL(&bstrTitle);
+		  if (!spDoc) continue;
 
 		  CComBSTR url;
-		  spDoc->get_URL(&url);
+		  hr = spDoc->get_URL(&url);
+		  if (FAILED(hr)) continue;
+
 		  std::string urlStr = ConvertBSTRToMBS(url);
-		  if (inWhitelist(whitelist, urlStr)) {
-			  std::vector<std::string> subFrames = getFrames(spDoc);
+		  if (InWhitelist(whitelist, urlStr)) {
+			  std::vector<std::string> subFrames = GetFrames(spDoc);
 			  UrlFrame urlFrame = {
 				  urlStr,
 				  subFrames
@@ -157,13 +213,13 @@ namespace helloWorld {
 	  // isolate当前的V8执行环境，每个isolate执行环境相互独立
 	  Isolate* isolate = args.GetIsolate();
 
-	  // 检查传入的参数的个数
-	  if (args.Length() < 1) {
-		  // 抛出一个错误并传回到 JavaScript
-		  isolate->ThrowException(Exception::TypeError(
-			  String::NewFromUtf8(isolate, "参数的数量错误")));
-		  return;
-	  }
+	  // 不再检查传入的参数的个数
+	  //if (args.Length() < 1) {
+		 // // 抛出一个错误并传回到 JavaScript
+		 // isolate->ThrowException(Exception::TypeError(
+			//  String::NewFromUtf8(isolate, "参数的数量错误")));
+		 // return;
+	  //}
 
 	  std::vector<std::string> urls;
 	  for (int i = 0; i < args.Length(); i++) {
