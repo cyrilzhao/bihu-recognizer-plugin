@@ -2,8 +2,9 @@
 #include <atlbase.h>
 #include <mshtml.h>
 #include "exdisp.h"
+#include "comdef.h"
 
-namespace helloWorld {
+namespace addon {
 
   using namespace v8;
 
@@ -107,7 +108,7 @@ namespace helloWorld {
 		  hr = pBody->get_outerHTML(&bstrBody);
 		  if (FAILED(hr)) continue;
 		  std::string body = ConvertBSTRToMBS(bstrBody);
-		  if (body.size() > 1) {
+		  if (body.size() > 100) {
 			  frames.push_back(body);
 		  }
 
@@ -144,39 +145,96 @@ namespace helloWorld {
   struct UrlFrame {
 	  std::string url;
 	  std::vector<std::string> frames;
-	  long hresult;
   };
 
-  std::vector<UrlFrame> FindFromShell(std::vector<std::string> whitelist)
+  BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam) {
+	  CHAR szClassName[100];
+	  ::GetClassName(hwnd, szClassName, sizeof(szClassName));
+	  if (_tcscmp(szClassName, _T("Internet Explorer_Server")) == 0) {
+		  //*(HWND*)lParam = hwnd;
+		  std::vector<HWND>* list = (std::vector<HWND>*)lParam;
+		  list->push_back(hwnd);
+		  //return FALSE;
+	  }
+	  return TRUE;
+  }
+
+  std::vector<CComQIPtr<IHTMLDocument2>> FindFromWindow(CHAR* clsName) {
+	  std::vector<CComQIPtr<IHTMLDocument2>> pDocs;
+
+	  HWND hWnd = ::FindWindowEx(0, 0, clsName, 0);
+	  std::vector<HWND> children;
+	  ::EnumChildWindows(hWnd, EnumChildProc, (LPARAM)& children);
+
+	  for (int i = 0; i < children.size(); i++) {
+		  HWND hWndChild = children[i];
+		  UINT nMsg = ::RegisterWindowMessage(_T("WM_HTML_GETOBJECT"));
+		  LRESULT lRes;
+		  ::SendMessageTimeout(hWndChild, nMsg, 0L, 0L, SMTO_ABORTIFHUNG, 1000, (PDWORD_PTR)& lRes);
+		  DWORD e = GetLastError();
+		  CComQIPtr <IHTMLDocument2> spDoc;
+		  ::ObjectFromLresult(lRes, IID_IHTMLDocument2, 0, (LPVOID*)& spDoc);
+		  if (spDoc != NULL) {
+			  pDocs.push_back(spDoc);
+		  }
+	  }
+
+	  return pDocs;
+  }
+
+  std::vector<CComQIPtr<IHTMLDocument2>> FindFromShell()
   {
-	  std::vector<UrlFrame> frames;
+	  std::vector<CComQIPtr<IHTMLDocument2>> pDocs;
 
 	  CComQIPtr<IShellWindows> spShellWin;
 	  HRESULT hr = spShellWin.CoCreateInstance(CLSID_ShellWindows);
-	  if (FAILED(hr))    return frames;
+	  if (FAILED(hr))    return pDocs;
 
 	  long nCount = 0;
 	  spShellWin->get_Count(&nCount);   // 取得浏览器实例个数
 
 	  for (long i = 0; i < nCount; i++)
 	  {
-		  UrlFrame urlFrame;
 		  CComQIPtr< IDispatch > spDisp;
 		  hr = spShellWin->Item(CComVariant(i), &spDisp);
 		  if (FAILED(hr)) continue;
 
-		  CComQIPtr< IWebBrowser2 > spBrowser = (CComQIPtr< IWebBrowser2 >)spDisp;
+		  CComQIPtr< IWebBrowser2 > spBrowser(spDisp);
 		  if (!spBrowser) continue;
 
-		  spDisp.Release();
-		  hr = spBrowser->get_Document(&spDisp);
+		  CComQIPtr< IDispatch > dispDoc;
+		  hr = spBrowser->get_Document(&dispDoc);
 		  if (FAILED(hr)) continue;
 
-		  CComQIPtr< IHTMLDocument2 > spDoc = (CComQIPtr< IHTMLDocument2 >)spDisp;
+		  CComQIPtr< IHTMLDocument2 > spDoc(dispDoc);
+		  if (!spDoc) continue;
+
+		  pDocs.push_back(spDoc);
+	  }
+	  
+	  return pDocs;
+  }
+
+  std::vector<UrlFrame> FindAllFrams(std::vector<std::string> whitelist, bool fromShell)
+  {
+	  std::vector<UrlFrame> frames;
+
+	  std::vector<CComQIPtr<IHTMLDocument2>> pDocs;
+	  if (fromShell) {
+		  pDocs = FindFromShell();
+	  }
+	  else {
+		  pDocs = FindFromWindow("IEFrame");
+		  std::vector<CComQIPtr<IHTMLDocument2>> seDocs = FindFromWindow("360se6_Frame");
+		  pDocs.insert(pDocs.end(), seDocs.begin(), seDocs.end());
+	  }
+	  for (long i = 0; i < pDocs.size(); i++)
+	  {
+		  CComQIPtr< IHTMLDocument2 > spDoc = pDocs[i];
 		  if (!spDoc) continue;
 
 		  CComBSTR url;
-		  hr = spDoc->get_URL(&url);
+		  HRESULT hr = spDoc->get_URL(&url);
 		  if (FAILED(hr)) continue;
 
 		  std::string urlStr = ConvertBSTRToMBS(url);
@@ -198,7 +256,8 @@ namespace helloWorld {
 	  WCHAR* str1;
 	  int n = MultiByteToWideChar(CP_ACP, 0, strGBK.c_str(), -1, NULL, 0);
 	  str1 = new WCHAR[n];
-	  MultiByteToWideChar(CP_ACP, 0, strGBK.c_str(), -1, str1, n); n = WideCharToMultiByte(CP_UTF8, 0, str1, -1, NULL, 0, NULL, NULL);
+	  MultiByteToWideChar(CP_ACP, 0, strGBK.c_str(), -1, str1, n);
+	  n = WideCharToMultiByte(CP_UTF8, 0, str1, -1, NULL, 0, NULL, NULL);
 	  char* str2 = new char[n];
 	  WideCharToMultiByte(CP_UTF8, 0, str1, -1, str2, n, NULL, NULL);
 	  strOutUTF8 = str2;
@@ -222,12 +281,19 @@ namespace helloWorld {
 	  //}
 
 	  std::vector<std::string> urls;
-	  for (int i = 0; i < args.Length(); i++) {
-		  String::Utf8Value value(args[i]->ToString());
-		  urls.push_back(std::string(*value));
+	  if (args.Length() > 0 && args[0]->IsArray()) {
+		  Local<Array> input = Local<Array>::Cast(args[0]);
+		  for (int i = 0; i < input->Length(); i++) {
+			  String::Utf8Value value(input->Get(i)->ToString());
+			  urls.push_back(std::string(*value));
+		  }
+	  }
+	  bool fromShell = true;
+	  if (args.Length() > 1) {
+		  fromShell = args[1]->BooleanValue();
 	  }
 
-	  std::vector<UrlFrame> urlFrames = FindFromShell(urls);
+	  std::vector<UrlFrame> urlFrames = FindAllFrams(urls, fromShell);
 
 	  Local<Array> result = Array::New(isolate);
 	  for (int i = 0; i < urlFrames.size(); i++) {
