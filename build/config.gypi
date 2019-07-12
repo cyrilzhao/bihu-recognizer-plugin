@@ -70,8 +70,9 @@
     "v8_typed_array_max_size_in_heap": 0,
     "v8_use_snapshot": "true",
     "want_separate_host_toolset": 0,
-    "nodedir": "C:\\Users\\franksmithworld\\.node-gyp\\10.16.0",
+    "nodedir": "C:\\Users\\franksmithworld\\.node-gyp\\4.1.0",
     "standalone_static_library": 1,
-    "msbuild_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
+    "msbuild_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe",
+    "target": "4.1.0"
   }
 }

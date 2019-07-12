@@ -11,13 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{72B308C3-4C14-DF9D-FFDA-E20BBF0FB258}</ProjectGuid>
+    <ProjectGuid>{709EBCCF-FB0E-EBD9-2BB2-B0AB9CFCE92E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>frame_addon</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
-    <ProjectName>frame_addon</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -49,7 +48,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\franksmithworld\.node-gyp\10.16.0\include\node;C:\Users\franksmithworld\.node-gyp\10.16.0\src;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\openssl\config;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\openssl\openssl\include;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\uv\include;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\zlib;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\franksmithworld\.node-gyp\4.1.0\include\node;C:\Users\franksmithworld\.node-gyp\4.1.0\src;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\openssl\config;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\openssl\openssl\include;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\uv\include;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\zlib;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -62,7 +61,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=test;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=frame_addon;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling>true</StringPooling>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -70,7 +69,7 @@
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;Oleacc.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;"C:\Users\franksmithworld\.node-gyp\10.16.0\x64\node.lib"</AdditionalDependencies>
+      <AdditionalDependencies>Oleacc.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;"C:\Users\franksmithworld\.node-gyp\4.1.0\x64\node.lib"</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -85,13 +84,13 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\franksmithworld\.node-gyp\10.16.0\include\node;C:\Users\franksmithworld\.node-gyp\10.16.0\src;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\openssl\config;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\openssl\openssl\include;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\uv\include;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\zlib;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=test;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\franksmithworld\.node-gyp\4.1.0\include\node;C:\Users\franksmithworld\.node-gyp\4.1.0\src;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\openssl\config;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\openssl\openssl\include;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\uv\include;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\zlib;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=frame_addon;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\franksmithworld\.node-gyp\10.16.0\include\node;C:\Users\franksmithworld\.node-gyp\10.16.0\src;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\openssl\config;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\openssl\openssl\include;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\uv\include;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\zlib;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\franksmithworld\.node-gyp\4.1.0\include\node;C:\Users\franksmithworld\.node-gyp\4.1.0\src;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\openssl\config;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\openssl\openssl\include;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\uv\include;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\zlib;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -106,7 +105,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <Optimization>Full</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=test;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=frame_addon;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
@@ -119,7 +118,7 @@
       <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;Oleacc.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;"C:\Users\franksmithworld\.node-gyp\10.16.0\x64\node.lib"</AdditionalDependencies>
+      <AdditionalDependencies>Oleacc.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;"C:\Users\franksmithworld\.node-gyp\4.1.0\x64\node.lib"</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 /LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -136,8 +135,8 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\franksmithworld\.node-gyp\10.16.0\include\node;C:\Users\franksmithworld\.node-gyp\10.16.0\src;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\openssl\config;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\openssl\openssl\include;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\uv\include;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\zlib;C:\Users\franksmithworld\.node-gyp\10.16.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=test;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\franksmithworld\.node-gyp\4.1.0\include\node;C:\Users\franksmithworld\.node-gyp\4.1.0\src;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\openssl\config;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\openssl\openssl\include;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\uv\include;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\zlib;C:\Users\franksmithworld\.node-gyp\4.1.0\deps\v8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=frame_addon;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
