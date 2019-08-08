@@ -1,7 +1,7 @@
-const getAllFrame = require('./build/Release/frame_addon');
+const getAllFrame = require('./build/Debug/frame_addon');
 const fs = require('fs')
 
-const result = getAllFrame(['https://cbank.jsbchina.cn'], false)
+const result = getAllFrame(['https://ebank.cebbank.com'], false)
 for (const i in result) {
   console.log(result[i].url, result[i].frames.length)
   for (const j in result[i].frames) {

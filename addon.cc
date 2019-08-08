@@ -81,6 +81,17 @@ namespace addon {
 
   std::vector<std::string> GetFrames(CComQIPtr<IHTMLDocument2> pDoc) {
 	  std::vector<std::string> frames;
+
+	  CComQIPtr<IHTMLElement> body;
+	  HRESULT result = pDoc->get_body(&body);
+	  if (SUCCEEDED(result)) {
+		  CComBSTR strBody;
+		  result = body->get_outerHTML(&strBody);
+		  if (SUCCEEDED(result)) {
+			  frames.push_back(ConvertBSTRToMBS(strBody));
+		  }
+	  }
+
 	  CComQIPtr<IHTMLFramesCollection2> pFrames;
 	  pDoc->get_frames(&pFrames);
 	  if (NULL == pFrames) {
